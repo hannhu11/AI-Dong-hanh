@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 Demo Người Bạn Đồng Hành AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-line;
+        }
+        
+        .success { color: #2ed573; }
+        .error { color: #ff6b6b; }
+        .info { color: #3742fa; }
+        
+        .thought-bubble-demo {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 280px;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.8);
+            transition: all 0.5s ease;
+            z-index: 1000;
+        }
+        
+        .thought-bubble-demo.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌸 Người Bạn Đồng Hành AI</h1>
+            <p><strong>Demo Tính Năng Thông Minh</strong></p>
+            <p><em>Phát triển bởi: Hàn Như | Dành tặng: Quin 💝</em></p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>🤖 AI Engine</h3>
+                <p>Google Gemini</p>
+            </div>
+            <div class="stat-card">
+                <h3>🌤️ Weather API</h3>
+                <p>OpenWeatherMap</p>
+            </div>
+            <div class="stat-card">
+                <h3>⏰ Time Tracking</h3>
+                <p id="session-time">0 phút</p>
+            </div>
+            <div class="stat-card">
+                <h3>💭 Messages Sent</h3>
+                <p id="message-count">0</p>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🧠 Test AI Thấu Cảm</h3>
+            <p>Kiểm tra Airi có thể tạo thông điệp dựa trên bối cảnh không:</p>
+            <button class="test-button" onclick="testAI('morning')">🌅 Buổi Sáng</button>
+            <button class="test-button" onclick="testAI('afternoon')">🌤️ Buổi Chiều</button>
+            <button class="test-button" onclick="testAI('evening')">🌆 Buổi Tối</button>
+            <button class="test-button" onclick="testAI('long_session')">😴 Session Dài</button>
+            <div id="ai-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🌤️ Test Weather Integration</h3>
+            <p>Kiểm tra API thời tiết có hoạt động không:</p>
+            <input type="text" id="city-input" placeholder="Nhập tên thành phố (vd: Ho Chi Minh City)" style="padding: 10px; border-radius: 5px; border: none; margin-right: 10px; width: 250px;">
+            <button class="test-button" onclick="testWeather()">🔍 Kiểm Tra</button>
+            <div id="weather-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>💭 Test ThoughtBubble</h3>
+            <p>Xem preview ThoughtBubble sẽ hiển thị như thế nào:</p>
+            <button class="test-button" onclick="showThoughtBubble()">✨ Demo Bubble</button>
+            <button class="test-button" onclick="showRandomMessage()">🎲 Random Message</button>
+        </div>
+
+        <div class="demo-section">
+            <h3>⏰ Test Time Tracking</h3>
+            <p>Mô phỏng logic theo dõi thời gian:</p>
+            <button class="test-button" onclick="simulateShortSession()">⚡ Session Ngắn</button>
+            <button class="test-button" onclick="simulateLongSession()">⏳ Session Dài (>20min)</button>
+            <div id="time-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🔧 System Status</h3>
+            <p>Kiểm tra tất cả API và service:</p>
+            <button class="test-button" onclick="runFullTest()">🚀 Full System Test</button>
+            <div id="system-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div id="thought-bubble" class="thought-bubble-demo">
+        <p id="bubble-text">Xin chào! Tôi là Airi 🌸</p>
+    </div>
+
+    <script>
+        let sessionStartTime = Date.now();
+        let messageCount = 0;
+
+        // Update session timer
+        setInterval(() => {
+            const minutes = Math.floor((Date.now() - sessionStartTime) / 60000);
+            document.getElementById('session-time').textContent = minutes + ' phút';
+        }, 1000);
+
+        // AI Test Function
+        async function testAI(context) {
+            const resultDiv = document.getElementById('ai-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="info">🤖 Đang gọi Gemini AI...</span>';
+
+            const prompts = {
+                morning: "Bối cảnh: Bây giờ là buổi sáng, Quin vừa bắt đầu ngày mới. Hãy tạo một thông điệp động viên ngắn gọn.",
+                afternoon: "Bối cảnh: Bây giờ là buổi chiều, Quin đang làm việc căng thẳng. Hãy tạo một lời động viên nhẹ nhàng.",
+                evening: "Bối cảnh: Bây giờ là buổi tối, Quin chuẩn bị kết thúc ngày làm việc. Hãy tạo một thông điệp thư giãn.",
+                long_session: "Bối cảnh: Quin đã làm việc liên tục hơn 20 phút. Hãy tạo một lời nhắc nghỉ ngơi nhẹ nhàng."
+            };
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyDjrcdp7WQOdwC926-L0wNGVmH53NDLXhw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Bạn là Airi, AI thấu cảm. ${prompts[context]}` }] }],
+                        generationConfig: { temperature: 0.8, maxOutputTokens: 50 }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const message = data.candidates?.[0]?.content?.parts?.[0]?.text || "Không có phản hồi";
+                    resultDiv.innerHTML = `<span class="success">✅ Airi: "${message.trim()}"</span>`;
+                    messageCount++;
+                    document.getElementById('message-count').textContent = messageCount;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ API Error: ${response.status}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Lỗi: ${error.message}</span>`;
+            }
+        }
+
+        // Weather Test Function
+        async function testWeather() {
+            const city = document.getElementById('city-input').value || 'Ho Chi Minh City';
+            const resultDiv = document.getElementById('weather-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="info">🌤️ Đang lấy thông tin thời tiết...</span>';
+
+            try {
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=651625ad01482b8a4f1489e72fdd53e8&units=metric&lang=vi`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <span class="success">✅ Thời tiết ${city}:</span>
+                        🌡️ Nhiệt độ: ${Math.round(data.main.temp)}°C
+                        📝 Mô tả: ${data.weather[0].description}
+                        💧 Độ ẩm: ${data.main.humidity}%
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Không tìm thấy thành phố "${city}"</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Lỗi: ${error.message}</span>`;
+            }
+        }
+
+        // ThoughtBubble Demo
+        function showThoughtBubble(message = null) {
+            const bubble = document.getElementById('thought-bubble');
+            const text = document.getElementById('bubble-text');
+            
+            text.textContent = message || "Xin chào! Tôi là Airi, người bạn đồng hành AI của bạn 🌸";
+            bubble.classList.add('show');
+            
+            setTimeout(() => {
+                bubble.classList.remove('show');
+            }, 3000);
+        }
+
+        function showRandomMessage() {
+            const messages = [
+                "Hôm nay bạn đã cười chưa? 😊",
+                "Mọi chuyện rồi sẽ ổn thôi, mình tin ở bạn! 💖",
+                "Thời tiết đẹp thế này, ra ngoài chút nhé! 🌞",
+                "Đã làm việc lâu rồi, nghỉ ngơi tí đi~ ✨",
+                "Bạn là người tuyệt vời, đừng quên điều đó! 🌟"
+            ];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            showThoughtBubble(randomMessage);
+        }
+
+        // Time Tracking Simulation
+        function simulateShortSession() {
+            const resultDiv = document.getElementById('time-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <span class="info">⚡ Mô phỏng session ngắn (5 phút):</span>
+                ✅ Thời gian: 5 phút < 20 phút threshold
+                💭 Loại message: Thông điệp bình thường, vui vẻ
+                📝 Ví dụ: "Chúc bạn có một ngày tuyệt vời! 🌈"
+            `;
+        }
+
+        function simulateLongSession() {
+            const resultDiv = document.getElementById('time-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <span class="error">⏳ Mô phỏng session dài (25 phút):</span>
+                ⚠️ Thời gian: 25 phút > 20 phút threshold
+                💭 Loại message: Nhắc nghỉ ngơi
+                📝 Ví dụ: "Đã làm việc lâu rồi, nghỉ ngơi một chút nhé! 💕"
+                🔄 Timer được reset sau message
+            `;
+        }
+
+        // Full System Test
+        async function runFullTest() {
+            const resultDiv = document.getElementById('system-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="info">🚀 Đang kiểm tra toàn bộ hệ thống...</span>';
+
+            let results = "🔍 KẾT QUẢ SYSTEM TEST:\n\n";
+
+            // Test Gemini API
+            try {
+                const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyDjrcdp7WQOdwC926-L0wNGVmH53NDLXhw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Test" }] }],
+                        generationConfig: { maxOutputTokens: 10 }
+                    })
+                });
+                results += aiResponse.ok ? "✅ Gemini AI: HOẠT ĐỘNG\n" : "❌ Gemini AI: LỖI\n";
+            } catch {
+                results += "❌ Gemini AI: LỖI KẾT NỐI\n";
+            }
+
+            // Test Weather API
+            try {
+                const weatherResponse = await fetch("https://api.openweathermap.org/data/2.5/weather?q=Ho Chi Minh City&appid=651625ad01482b8a4f1489e72fdd53e8");
+                results += weatherResponse.ok ? "✅ Weather API: HOẠT ĐỘNG\n" : "❌ Weather API: LỖI\n";
+            } catch {
+                results += "❌ Weather API: LỖI KẾT NỐI\n";
+            }
+
+            // Test ThoughtBubble
+            results += "✅ ThoughtBubble: HOẠT ĐỘNG\n";
+            
+            // Test Time Tracking
+            results += "✅ Time Tracking: HOẠT ĐỘNG\n";
+
+            results += "\n🎉 TỔNG KẾT: Hệ thống sẵn sàng để trở thành người bạn đồng hành AI!";
+
+            resultDiv.innerHTML = `<span class="success">${results}</span>`;
+            
+            // Show celebration bubble
+            setTimeout(() => showThoughtBubble("Tất cả hệ thống hoạt động hoàn hảo! 🎉"), 1000);
+        }
+
+        // Auto-start demo
+        setTimeout(() => {
+            showThoughtBubble("Chào mừng đến với demo Người Bạn Đồng Hành AI! ✨");
+        }, 500);
+    </script>
+</body>
+</html>

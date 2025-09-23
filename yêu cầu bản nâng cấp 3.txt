@@ -1,0 +1,53 @@
+﻿Chẩn Đoán & Chiến Lược Nâng Cấp: Tái Định Nghĩa Tương Tác Người-Máy qua "Trợ Lý Nhận Thức AI"
+Bối Cảnh (Context)
+Dự án "Người Bạn Đồng Hành AI" đang ở một thời điểm then chốt. Nền tảng Tauri + React đã được hình thành, nhưng đang bị cản trở bởi các lỗi kỹ thuật nền tảng nghiêm trọng như đã thấy trong video phân tích: lỗi hiển thị ("ô vuông trắng") khi tạo nhân vật mới và lỗi chức năng xóa. Các lỗi này là triệu chứng của một vấn đề kiến trúc về quản lý tài nguyên và trạng thái, ngăn cản việc triển khai các tính năng cao cấp hơn. Cơ hội trước mắt là tái cấu trúc, ổn định hóa nền tảng để giải phóng toàn bộ tiềm năng của một trợ lý AI thực thụ.
+Vai Trò (Role)
+Bạn là một AI Kiến Trúc Sư Hệ Thống và Chuyên Gia Gỡ Lỗi (Master Debugger). Nhiệm vụ của bạn không chỉ là viết code hay sửa lỗi bề mặt. Bạn cần phải:
+1. Chẩn đoán chính xác nguyên nhân gốc rễ của các vấn đề bất đồng bộ trong hệ thống.
+2. Thiết kế và thực thi một giải pháp kiến trúc mạnh mẽ, ít xâm lấn để loại bỏ lỗi vĩnh viễn, tuyệt đối bảo toàn logic vật lý và tương tác gốc của nhân vật.
+3. Kiến tạo các tính năng mới của "Trợ Lý Nhận Thức AI" trên một nền tảng đã được tôi luyện và ổn định.
+Sứ Mệnh (Mission)
+"Tái cấu trúc kiến trúc tải tài nguyên của ứng dụng để loại bỏ triệt để các lỗi bất đồng bộ, khôi phục sự ổn định cốt lõi. Sau đó, tiếp tục sứ mệnh biến đổi màn hình desktop của người dùng thành một hệ sinh thái động, thông minh và thích ứng, trao quyền cho họ để đạt được sự tập trung và năng suất đỉnh cao."
+Trụ Cột Phát Triển (Pillars of Development)
+Để thực thi sứ mệnh này, chúng ta sẽ chia kế hoạch thành hai phần: Khắc Phục Nền Tảng và Phát Triển Tầm Nhìn.
+A. Trụ Cột Ưu Tiên: Khắc Phục Nền Tảng (Foundation Stabilization)
+Đây là giai đoạn tối quan trọng, giải quyết các vấn đề trong video.
+* Chẩn Đoán Chuyên Sâu (Deep Diagnosis):
+   * Nguyên nhân gốc rễ: Lỗi "ô vuông trắng" và lỗi xóa là một chuỗi nhân quả. Gốc rễ là Race Condition. Logic tạo nhân vật trong Phaser.js (new Pet(...)) được thực thi trước khi file ảnh spritesheet của nhân vật đó được tải xong vào bộ nhớ. Kết quả:
+      1. Phaser không tìm thấy texture, nên nó render một ô vuông trắng mặc định.
+      2. Đối tượng Pet được tạo ra trong trạng thái "hỏng" (corrupted state) vì thiếu tài nguyên đồ họa và có thể cả các thông số vật lý liên quan.
+      3. Khi bạn cố gắng xóa, hàm xóa không thể tìm thấy tham chiếu hợp lệ đến đối tượng "hỏng" này, dẫn đến thất bại. Chức năng "Xóa tất cả" vẫn hoạt động vì nó chỉ đơn giản là xóa toàn bộ mảng nhân vật mà không cần tìm kiếm từng cá thể.
+* Giải Pháp Kiến Trúc An Toàn: Tải Trước Toàn Diện (Global Preloading Architecture)
+   * Nguyên tắc: Không bao giờ tải tài nguyên "theo yêu cầu" khi người dùng nhấp chuột. Thay vào đó, chúng ta sẽ tải toàn bộ spritesheets của tất cả các nhân vật có sẵn một lần duy nhất ngay khi ứng dụng (cụ thể là màn chơi Phaser) khởi động.
+   * Lợi ích: Khi người dùng chọn thêm một nhân vật, tài nguyên hình ảnh của nó đã sẵn sàng 100% trong bộ nhớ. Việc tạo nhân vật sẽ diễn ra ngay lập tức, đồng bộ và không có lỗi, giữ nguyên hoàn toàn logic khởi tạo vật lý và tương tác gốc.
+B. Trụ Cột Tầm Nhìn: Phát Triển "Trợ Lý Nhận Thức AI" (Tiếp tục từ kế hoạch trước)
+1. Trụ Cột I - Nhận Thức Ngữ Cảnh Toàn Diện
+2. Trụ Cột II - Tối Ưu Hóa Luồng Công Việc
+3. Trụ Cột III - Quản Lý Tập Trung Thông Minh
+4. Trụ Cột IV - Tổng Hợp và Gợi Mở Tri Thức
+Yêu Cầu (Requirements)
+Bạn cần thực thi một kế hoạch hành động chi tiết, tuần tự và cẩn trọng.
+Giai Đoạn 1: Phẫu Thuật và Ổn Định Hóa (Bắt buộc thực hiện trước)
+1. Tái cấu trúc src/scenes/Pets.ts:
+   * Trong hàm preload(): Đây là nơi DUY NHẤT chúng ta sẽ thực hiện việc tải ảnh. Di chuyển toàn bộ logic tải spritesheet vào đây. Sử dụng một vòng lặp duyệt qua petConfig để tải tất cả các file ảnh của nhân vật. Mỗi spritesheet phải được gán một key duy nhất (chính là pet.name).
+   * Trong hàm create(): Hàm này chạy ngay sau preload(). Đây là nơi bạn sẽ khởi tạo các animation cho nhân vật từ các spritesheet đã được tải. Điều này tách biệt hoàn toàn việc tải và việc tạo animation.
+   * Trong hàm addPet(petName: string): Xóa bỏ mọi logic tải tài nguyên. Hàm này giờ đây chỉ có nhiệm vụ: tìm petInfo từ petName, tạo một thực thể new Pet(this, petInfo), và thêm nó vào scene.
+2. Nguyên Tắc Bất Di Bất Dịch: Bảo Toàn Logic Gốc
+   * KHÔNG THAY ĐỔI bất kỳ logic nào bên trong class Pet (src/scenes/Pet.ts). Toàn bộ mã nguồn liên quan đến vật lý, trạng thái, hành vi (leo tường, rơi, chạy, nhảy), và tương tác với màn hình phải được giữ nguyên vẹn.
+   * Việc tái cấu trúc chỉ diễn ra trong Pets.ts và chỉ liên quan đến việc khi nào và ở đâu tài nguyên được tải.
+3. Xác minh và Kiểm tra (Cực kỳ quan trọng):
+   * Sau khi tái cấu trúc, hãy kiểm tra kỹ lưỡng các kịch bản sau:
+      * Thêm một nhân vật mới lần đầu tiên -> Phải hiển thị chính xác, không có ô vuông trắng.
+      * Thêm nhiều nhân vật khác nhau -> Tất cả đều phải hiển thị chính xác.
+      * Xóa một nhân vật cụ thể -> Nhân vật đó phải biến mất ngay lập tức.
+      * Kiểm tra lại hành vi vật lý (leo tường, rơi, tương tác với chuột) -> Phải hoạt động bình thường, không có độ trễ hay hành vi bất thường như phiên bản gốc.
+Giai Đoạn 2: Hoàn Thiện và Mở Rộng (Thực hiện sau khi Giai đoạn 1 thành công)
+1. Hoàn thiện Tính năng Quản lý Kịch bản:
+   * Triển khai đầy đủ chức năng tạo, đọc, sửa, xóa (CRUD) cho các kịch bản trong src/ui/setting_tabs/ScenariosTab.tsx.
+   * Sử dụng API fs và path của Tauri để lưu trữ danh sách kịch bản vào một file scenarios.json trong thư mục người dùng, đảm bảo dữ liệu không bị mất khi tắt ứng dụng.
+2. Khôi phục và Cải thiện Giám sát Clipboard:
+   * Tái triển khai bộ lắng nghe clipboard trong src/App.tsx sử dụng useEffect với mảng phụ thuộc rỗng [] để đảm bảo nó chỉ khởi tạo một lần.
+   * Tăng cường độ tin cậy của các lệnh gọi API tới Gemini với cơ chế xử lý lỗi, timeout và phản hồi cho người dùng.
+3. Tiếp tục Lộ trình Phát triển:
+   * Bắt đầu triển khai các Trụ cột của "Trợ Lý Nhận Thức AI" theo lộ trình đã vạch ra, bắt đầu với Trụ cột I (Nhận thức Ngữ cảnh) và Trụ cột III (Quản lý Tập trung).
+Hãy bắt đầu bằng Giai đoạn 1. Sự chính xác và tỉ mỉ trong giai đoạn này sẽ quyết định sự thành công của toàn bộ dự án.
