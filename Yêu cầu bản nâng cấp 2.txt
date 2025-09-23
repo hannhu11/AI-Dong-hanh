@@ -1,0 +1,57 @@
+﻿Prompt Chiến Lược Thực Thi: Tái Định Nghĩa Tương Tác Người-Máy qua "Trợ Lý Nhận Thức AI"
+Bối Cảnh (Context)
+Dự án "Người Bạn Đồng Hành AI" đã thành công trong việc tạo ra một giao diện giàu cảm xúc trên nền tảng Tauri + React. Giờ đây, chúng ta sẽ tiến hành một bước nhảy vọt: biến người bạn này thành một "Trợ Lý Nhận Thức AI" - một cộng sự thông minh, chủ động trao quyền cho người dùng, giúp họ làm việc hiệu quả và tập trung hơn trong môi trường số.
+Vai Trò (Role)
+Bạn là một AI Lập Trình Viên Cao Cấp (Senior AI Engineer) với chuyên môn sâu về Rust, Tauri, React và tích hợp các mô hình ngôn ngữ lớn. Nhiệm vụ của bạn là phân tích mã nguồn AI-Dong-hanh hiện có và triển khai các tính năng nâng cao theo bản kế hoạch chiến lược dưới đây. Bạn phải đảm bảo mọi tính năng đều khả thi trong hệ sinh thái Tauri.
+Sứ Mệnh (Mission)
+"Biến đổi màn hình desktop của người dùng từ một không gian làm việc tĩnh thành một hệ sinh thái động, thông minh và thích ứng; giúp tăng cường khả năng nhận thức, giảm thiểu căng thẳng tinh thần và trao quyền cho họ để đạt được sự tập trung sâu và năng suất đỉnh cao, tích hợp liền mạch với sức khỏe cảm xúc."
+Trụ Cột Phát Triển (Pillars of Development)
+Dưới đây là 4 trụ cột phát triển, cùng với phân tích kỹ thuật và hướng dẫn triển khai cụ thể trên nền tảng Tauri.
+1. Trụ Cột I - Nhận Thức Ngữ Cảnh Toàn Diện (Holistic Contextual Awareness):
+* Tầm nhìn: AI phải nhận biết được người dùng đang làm gì.
+* Phân tích kỹ thuật & Hướng dẫn triển khai:
+   * Theo dõi Clipboard: Đây là tính năng khả thi nhất để bắt đầu.
+      * Cách làm: Sử dụng API readText() và listen() từ module @tauri-apps/api/clipboard.
+      * Luồng hoạt động: Trong một service mới (ví dụ src/services/contextService.ts), hãy khởi tạo một bộ lắng nghe sự kiện thay đổi clipboard. Khi phát hiện nội dung mới (đặc biệt là các đoạn text dài hoặc có chứa từ khóa như "error", "exception"), kích hoạt logic phân tích của AI.
+   * Nhận diện ứng dụng đang hoạt động: Tính năng này phức tạp hơn nhưng khả thi.
+      * Cách làm: Viết mã Rust tùy chỉnh ở phía backend (src-tauri/src/main.rs). Bạn sẽ cần sử dụng các thư viện dành riêng cho từng hệ điều hành (ví dụ: winapi cho Windows, core-graphics cho macOS) để lấy tiêu đề của cửa sổ đang hoạt động (active window). Tạo một command Tauri (ví dụ: get_active_window_title) để frontend có thể gọi và lấy thông tin này định kỳ.
+      * Lưu ý: Việc lấy tiêu đề tab trình duyệt là rất khó và xâm phạm quyền riêng tư. Chúng ta sẽ bắt đầu bằng việc lấy tiêu đề của toàn bộ cửa sổ trình duyệt.
+2. Trụ Cột II - Tối Ưu Hóa Luồng Công Việc (Workflow Optimization):
+* Tầm nhìn: AI học và tự động hóa các tác vụ lặp đi lặp lại.
+* Phân tích kỹ thuật & Hướng dẫn triển khai:
+   * Thực thi lệnh hệ thống: Tauri cực kỳ mạnh ở mảng này.
+      * Cách làm: Sử dụng API open từ module @tauri-apps/api/shell. API này có thể mở một ứng dụng, một URL trong trình duyệt, hoặc một thư mục trên máy tính.
+   * Xây dựng tính năng "Kịch bản": Thay vì để AI "học" một cách phức tạp, chúng ta sẽ cho phép người dùng tự tạo các kịch bản.
+      * Frontend (React): Tạo một tab mới trong cửa sổ cài đặt tên là "Kịch bản" (src/ui/setting_tabs/ScenariosTab.tsx). Tại đây, người dùng có thể tạo một kịch bản mới (ví dụ: "Bắt đầu làm việc"), và thêm vào đó các hành động như "Mở ứng dụng: Spotify", "Mở URL: mail.google.com", "Mở thư mục: D:\Projects".
+      * Backend (Rust/Tauri): Khi người dùng kích hoạt một kịch bản, frontend sẽ gửi một danh sách các hành động đến backend thông qua một command Tauri. Backend sẽ duyệt qua danh sách và dùng API shell để thực thi từng hành động.
+3. Trụ Cột III - Quản Lý Tập Trung Thông Minh (Intelligent Focus Management):
+* Tầm nhìn: AI trở thành người gác cổng cho sự tập trung của người dùng.
+* Phân tích kỹ thuật & Hướng dẫn triển khai:
+   * Xây dựng "Phiên làm việc tập trung" (Pomodoro):
+      * Cách làm: Hoàn toàn có thể thực hiện ở phía frontend (React). Tạo một component timer (src/ui/components/FocusTimer.tsx). Khi bắt đầu một phiên, AI sẽ hiển thị đồng hồ đếm ngược và có thể thay đổi trạng thái của nhân vật (ví dụ: nhân vật đeo tai nghe và ngồi yên).
+      * Lưu ý: Việc chặn website hay ẩn thông báo của ứng dụng khác là rất phức tạp và xâm lấn. Thay vào đó, khi phiên tập trung bắt đầu, AI chỉ nên đưa ra một lời nhắc nhở: "Đã đến lúc tập trung rồi, mình sẽ ở đây giữ yên lặng cho bạn nhé."
+4. Trụ Cột IV - Tổng Hợp và Gợi Mở Tri Thức (Knowledge Synthesis & Discovery):
+* Tầm nhìn: AI trở thành một trợ lý nghiên cứu cá nhân.
+* Phân tích kỹ thuật & Hướng dẫn triển khai:
+   * Tái định nghĩa thành "Trợ lý Clipboard thông minh": Thay vì cố gắng theo dõi lịch sử duyệt web (rất khó và riêng tư), chúng ta sẽ tận dụng Trụ cột I.
+      * Cách làm: Khi bộ lắng nghe clipboard phát hiện người dùng sao chép một đoạn văn bản dài, AI sẽ chủ động hỏi thông qua một giao diện không gây khó chịu: "Mình thấy bạn vừa sao chép một đoạn văn bản dài. Bạn có muốn mình tóm tắt lại không?"
+      * Tích hợp Gemini: Nếu người dùng đồng ý, nội dung clipboard sẽ được gửi đến geminiService.ts với một prompt yêu cầu tóm tắt. Kết quả sẽ được hiển thị một cách gọn gàng.
+Yêu Cầu (Requirements)
+Với vai trò là AI Lập Trình Viên, bạn cần thực hiện:
+1. Thiết kế và Triển khai Giao diện (UI/UX):
+   * Tạo các component React mới cho các tính năng: Bảng điều khiển "Kịch bản", giao diện "Phiên làm việc tập trung", và một cửa sổ nhỏ (modal/popup) để hiển thị các đề xuất thông minh của AI.
+   * Thiết kế cách AI giao tiếp một cách tinh tế, không gây gián đoạn, có thể thông qua ThoughtBubble.tsx hoặc sử dụng thông báo hệ thống qua @tauri-apps/api/notification.
+2. Lập trình Backend (Rust & Tauri Commands):
+   * Viết command Tauri để lấy tiêu đề cửa sổ đang hoạt động (get_active_window_title).
+   * Viết command Tauri để thực thi một chuỗi các hành động shell (execute_scenario).
+   * Đảm bảo xử lý lỗi và quyền riêng tư một cách cẩn thận, luôn hỏi sự cho phép của người dùng trước khi kích hoạt các tính năng có thể truy cập dữ liệu cá nhân.
+3. Kiến trúc Prompt Nâng cao cho Gemini:
+   * Thiết kế các mẫu prompt mới trong petAIService.ts cho các tác vụ:
+      * "Hãy phân tích nội dung clipboard sau và cho biết đây có phải là một thông báo lỗi lập trình không: {clipboard_content}"
+      * "Hãy tóm tắt đoạn văn bản sau thành 3 gạch đầu dòng chính: {clipboard_content}"
+      * "Dựa trên tiêu đề cửa sổ '{window_title}', hãy đưa ra một lời gợi ý hữu ích cho người dùng đang làm việc."
+4. Lộ trình Phát triển (Roadmap):
+   * Giai đoạn 1 (Nền tảng): Triển khai hoàn chỉnh Trụ cột I (Clipboard) và Trụ cột II (Thực thi kịch bản). Đây là những tính năng cốt lõi và khả thi nhất.
+   * Giai đoạn 2 (Tiện ích): Xây dựng Trụ cột III (Quản lý tập trung) và Trụ cột IV (Trợ lý Clipboard).
+   * Giai đoạn 3 (Nâng cao): Nghiên cứu và triển khai phần khó nhất của Trụ cột I (Nhận diện ứng dụng đang hoạt động).
+Hãy bắt đầu bằng Giai đoạn 1. Tương lai của "Trợ Lý Nhận Thức AI" đang chờ bạn kiến tạo.
