@@ -105,12 +105,12 @@ function ContextSuggestionBubble() {
             right: '20px',
             width: '350px',
             zIndex: 10000,
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+            background: 'linear-gradient(135deg, rgba(25, 25, 35, 0.95) 0%, rgba(15, 15, 20, 0.98) 100%)',
             backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            border: '2px solid rgba(116, 192, 252, 0.3)',
             borderRadius: '16px',
             padding: '16px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}
         >
           <Group justify="space-between" align="flex-start" mb="xs">
@@ -135,17 +135,21 @@ function ContextSuggestionBubble() {
           </Group>
           
           <Text size="sm" mb="xs" style={{ 
-            fontWeight: 500,
-            color: '#fff'
+            fontWeight: 600,
+            color: '#ffffff',
+            textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+            lineHeight: 1.4
           }}>
             {currentSuggestion.suggestion}
           </Text>
           
           {currentSuggestion.content && (
             <Text size="xs" style={{ 
-              opacity: 0.7,
+              opacity: 0.85,
               fontStyle: 'italic',
-              color: '#e0e0e0'
+              color: '#b8c5d1',
+              textShadow: '0 1px 1px rgba(0, 0, 0, 0.3)',
+              lineHeight: 1.3
             }}>
               "{currentSuggestion.content}"
             </Text>
@@ -158,7 +162,9 @@ function ContextSuggestionBubble() {
               bottom: '8px',
               right: '12px',
               fontSize: '10px',
-              color: 'rgba(255, 255, 255, 0.5)'
+              color: 'rgba(184, 197, 209, 0.8)',
+              textShadow: '0 1px 1px rgba(0, 0, 0, 0.3)',
+              fontWeight: 500
             }}
           >
             {new Date(currentSuggestion.timestamp).toLocaleTimeString('vi-VN')}

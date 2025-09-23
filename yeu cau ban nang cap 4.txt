@@ -1,0 +1,70 @@
+﻿Chẩn Đoán & Lộ Trình Phát Triển "Trợ Lý Nhận Thức AI"
+Bối Cảnh (Context)
+Dự án "Người Bạn Đồng Hành AI" đã vượt qua giai đoạn sửa lỗi đồ họa và đang ở một thời điểm then chốt. Nền tảng Tauri + React đã ổn định về mặt hiển thị, nhưng đang bị cản trở bởi một lỗi kiến trúc cuối cùng: Lỗi Vòng Đời Dịch Vụ. Các tính năng nền tảng như hiển thị thông báo AI ("bong bóng suy nghĩ") và giám sát clipboard hoạt động không nhất quán, thường chỉ chạy đúng ở lần khởi động đầu tiên rồi ngừng hoạt động.
+Việc giải quyết dứt điểm vấn đề này sẽ mở đường cho sự chuyển mình từ một "người bạn" đơn thuần thành một "Trợ Lý Nhận Thức AI" thực thụ, thông minh và hữu ích.
+Vai Trò (Role)
+Bạn là một AI Kiến Trúc Sư Hệ Thống và Chuyên Gia Gỡ Lỗi (Master Debugger). Nhiệm vụ của bạn không chỉ là viết code hay sửa lỗi bề mặt. Bạn cần phải:
+1. Chẩn đoán chính xác nguyên nhân gốc rễ của các vấn đề về vòng đời và trạng thái trong hệ thống.
+2. Thiết kế và thực thi một giải pháp kiến trúc mạnh mẽ, ít xâm lấn để loại bỏ lỗi vĩnh viễn, tuyệt đối bảo toàn logic vật lý và tương tác gốc của nhân vật.
+3. Kiến tạo các tính năng mới của "Trợ Lý Nhận Thức AI" trên một nền tảng đã được tôi luyện và ổn định.
+Sứ Mệnh (Mission)
+"Tái cấu trúc kiến trúc khởi tạo dịch vụ của ứng dụng để loại bỏ triệt để các lỗi vòng đời, khôi phục sự ổn định cốt lõi. Sau đó, tiếp tục sứ mệnh biến đổi màn hình desktop của người dùng thành một hệ sinh thái động, thông minh và thích ứng, trao quyền cho họ để đạt được sự tập trung và năng suất đỉnh cao."
+Trụ Cột Phát Triển (Pillars of Development)
+Kế hoạch sẽ được chia thành hai phần: Khắc Phục Nền Tảng và Phát Triển Tầm Nhìn.
+A. Trụ Cột Ưu Tiên: Khắc Phục Nền Tảng (Foundation Stabilization)
+Đây là giai đoạn tối quan trọng để giải quyết lỗi còn lại.
+* Chẩn Đoán Chuyên Sâu (Deep Diagnosis):
+   * Nguyên nhân gốc rễ: Vấn đề các "bong bóng suy nghĩ" và giám sát clipboard lúc hoạt động lúc không là do lỗi quản lý vòng đời (Lifecycle Bug). Các dịch vụ nền (như contextService, timeTrackingService) đang được khởi tạo bên trong một component React có thể bị unmount (hủy) và re-mount (tạo lại) trong quá trình sử dụng ứng dụng (ví dụ khi mở/đóng cửa sổ cài đặt). Khi component bị hủy, các bộ đếm thời gian (setInterval) và bộ lắng nghe sự kiện (clipboard.listen) bên trong các dịch vụ đó cũng bị hủy theo, dẫn đến việc chúng ngừng hoạt động.
+   * Bằng chứng: Việc bạn thấy thông báo xuất hiện trong cửa sổ cài đặt nhưng không thấy ngoài màn hình chính củng cố giả thuyết rằng các dịch vụ này đang bị gắn chặt với vòng đời của giao diện cài đặt.
+* Giải Pháp Kiến Trúc An Toàn: Tập Trung Hóa Khởi Tạo Dịch Vụ (Centralized Service Initialization)
+   * Nguyên tắc: Các dịch vụ nền phải được coi là các singleton, chỉ được khởi tạo một lần duy nhất khi ứng dụng bắt đầu và tồn tại trong suốt thời gian ứng dụng chạy, hoàn toàn độc lập với bất kỳ component giao diện nào.
+   * Lợi ích: Đảm bảo các bộ đếm thời gian và bộ lắng nghe luôn hoạt động ở chế độ nền, bất kể người dùng có tương tác với cửa sổ cài đặt hay không.
+B. Trụ Cột Tầm Nhìn: Phát Triển "Trợ Lý Nhận Thức AI" (Chi tiết hóa)
+Sau khi nền tảng được ổn định, đây là lộ trình phát triển các tính năng đột phá.
+* Trụ Cột I - Nhận Thức Ngữ Cảnh Toàn Diện
+   * Tầm nhìn: AI phải "hiểu" người dùng đang làm gì để đưa ra gợi ý phù hợp.
+   * Tính năng Khả thi:
+      1. Trợ lý Clipboard Thông minh: Tự động phát hiện các loại nội dung trong clipboard (mã lỗi, đoạn văn bản dài, link YouTube) và đề xuất hành động tương ứng (tìm giải pháp, tóm tắt, mở video trong cửa sổ nổi).
+      2. Nhận diện Ứng dụng: Định kỳ kiểm tra tiêu đề của cửa sổ đang hoạt động. Nếu người dùng đang ở trong "Visual Studio Code" quá lâu, AI có thể nhắc nhở nghỉ ngơi. Nếu đang ở trong "Spotify", nó có thể đưa ra một bình luận vui vẻ về âm nhạc.
+   * Phân tích Kỹ thuật: Sử dụng @tauri-apps/api/clipboard cho clipboard. Viết một command Rust tùy chỉnh sử dụng winapi hoặc core-graphics để lấy tiêu đề cửa sổ đang hoạt động.
+* Trụ Cột II - Tối Ưu Hóa Luồng Công Việc
+   * Tầm nhìn: Biến các thao tác lặp đi lặp lại thành tự động hóa chỉ bằng một cú nhấp chuột.
+   * Tính năng Khả thi:
+      1. Quản lý Kịch bản (CRUD): Xây dựng giao diện cho phép người dùng tự tạo, sửa, xóa các chuỗi hành động (ví dụ: Kịch bản "Chào buổi sáng" sẽ mở trình duyệt, Spotify và ứng dụng chat).
+      2. Kích hoạt Kịch bản Nhanh: Thêm các kịch bản do người dùng tạo vào menu của system tray (icon ở góc dưới bên phải màn hình) để có thể kích hoạt nhanh mà không cần mở cửa sổ cài đặt.
+   * Phân tích Kỹ thuật: Sử dụng @tauri-apps/api/shell để thực thi lệnh mở ứng dụng/URL. Dùng @tauri-apps/api/fs và path để lưu file scenarios.json. Chỉnh sửa src-tauri/src/app/tray.rs để đọc file JSON và tự động tạo các menu item trong system tray.
+* Trụ Cột III - Quản Lý Tập Trung Thông Minh
+   * Tầm nhìn: Giúp người dùng bảo vệ sự tập trung quý giá của họ.
+   * Tính năng Khả thi:
+      1. Chế độ Tập trung (Pomodoro): Tích hợp một bộ đếm thời gian Pomodoro. Khi kích hoạt, AI có thể đổi sang trạng thái "đang ngủ" hoặc "đeo tai nghe" để báo hiệu rằng nó sẽ không làm phền, đồng thời hiển thị một đồng hồ đếm ngược nhỏ.
+      2. Báo cáo Tập trung Cuối ngày: Dựa vào dữ liệu từ timeTrackingService và các phiên tập trung, AI có thể đưa ra một bản tóm tắt cuối ngày: "Hôm nay bạn đã có 3 phiên làm việc sâu! Tuyệt vời!".
+   * Phân tích Kỹ thuật: Toàn bộ logic timer và giao diện có thể được xây dựng bằng React. Dữ liệu có thể được lưu trữ tạm thời trong state của zustand hoặc lưu vào file nếu muốn thống kê theo thời gian dài.
+* Trụ Cột IV - Tổng Hợp và Gợi Mở Tri Thức
+   * Tầm nhìn: Biến AI thành một trợ lý nghiên cứu, giúp người dùng tiêu hóa thông tin nhanh hơn.
+   * Tính năng Khả thi:
+      1. Tóm tắt Thông minh: Khi người dùng sao chép một đoạn văn bản dài, AI không chỉ đề xuất "tóm tắt", mà còn có thể hỏi: "Bạn muốn tóm tắt theo dạng gạch đầu dòng, hay một đoạn văn ngắn?".
+      2. Lưu trữ Tri thức: Cho phép người dùng lưu lại các đoạn tóm tắt hữu ích vào một "Ngân hàng tri thức" nhỏ ngay trong ứng dụng, có thể tìm kiếm và xem lại sau này.
+   * Phân tích Kỹ thuật: Nâng cấp geminiService.ts để có thể truyền vào các prompt khác nhau. Xây dựng một tab mới trong cài đặt để hiển thị "Ngân hàng tri thức", dữ liệu được lưu vào một file JSON riêng (knowledge_base.json).
+Yêu Cầu (Requirements)
+Bạn cần thực thi một kế hoạch hành động chi tiết, tuần tự và cẩn trọng.
+Giai Đoạn 1: Tái Cấu Trúc và Ổn Định Hóa Dịch Vụ (Bắt buộc thực hiện trước)
+1. Tạo một Service Quản Lý Chính (src/services/mainService.ts):
+   * Tạo một file mới để quản lý việc khởi tạo tất cả các dịch vụ nền khác. File này sẽ export một hàm duy nhất là initializeCoreServices().
+   * Bên trong hàm initializeCoreServices(), bạn sẽ gọi các hàm khởi tạo của từng dịch vụ con (ví dụ: initializeClipboardListener() từ contextService.ts, startTimeTracker() từ timeTrackingService.ts).
+2. Tập trung hóa việc gọi Service (src/App.tsx):
+   * Mở file gốc của ứng dụng: src/App.tsx.
+   * Sử dụng hook useEffect với một mảng phụ thuộc rỗng []. Đây là điều kiện tiên quyết để đảm bảo logic chỉ chạy một lần duy nhất.
+   * Bên trong useEffect, gọi hàm initializeCoreServices() mà bạn vừa tạo.
+   * Quan trọng: Tìm và xóa bỏ mọi lời gọi khởi tạo các dịch vụ này ở bất kỳ nơi nào khác trong mã nguồn (ví dụ: trong SettingWindow.tsx hoặc các component con của nó).
+Nguyên Tắc Bất Di Bất Dịch: Bảo Toàn Logic Gốc
+* KHÔNG THAY ĐỔI bất kỳ logic nào bên trong class Pet (src/scenes/Pet.ts) hoặc Pets (src/scenes/Pets.ts). Toàn bộ mã nguồn liên quan đến vật lý, trạng thái, hành vi (leo tường, rơi, chạy, nhảy), và tương tác với màn hình phải được giữ nguyên vẹn.
+* Việc tái cấu trúc chỉ diễn ra ở tầng quản lý dịch vụ và khởi tạo ứng dụng, không ảnh hưởng đến logic cốt lõi của từng nhân vật.
+Xác minh và Kiểm tra (Cực kỳ quan trọng):
+Sau khi tái cấu trúc, hãy kiểm tra kỹ lưỡng các kịch bản sau:
+* Kịch bản 1: Khởi động ứng dụng, không mở cửa sổ cài đặt, và chờ 1-3 phút. "Bong bóng suy nghĩ" phải tự động xuất hiện.
+* Kịch bản 2: Khởi động ứng dụng, không mở cửa sổ cài đặt, sao chép một đoạn văn bản dài vào clipboard. AI phải đưa ra đề xuất tóm tắt.
+* Kịch bản 3: Mở và đóng cửa sổ cài đặt nhiều lần. Sau đó, kiểm tra lại Kịch bản 1 và 2. Chúng phải tiếp tục hoạt động bình thường.
+Giai Đoạn 2: Hoàn Thiện và Mở Rộng (Thực hiện sau khi Giai đoạn 1 thành công)
+1. Hoàn thiện Tính năng Quản lý Kịch bản: Triển khai đầy đủ chức năng tạo, đọc, sửa, xóa (CRUD) cho các kịch bản trong src/ui/setting_tabs/ScenariosTab.tsx, sử dụng API fs và path của Tauri để lưu trữ vào file scenarios.json.
+2. Tiếp tục Lộ trình Phát triển: Bắt đầu triển khai các Trụ cột của "Trợ Lý Nhận Thức AI" theo lộ trình đã vạch ra.
+Hãy bắt

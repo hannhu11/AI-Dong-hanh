@@ -1,11 +1,109 @@
+// 🚀 ENHANCED API SYSTEM: 4 API Keys với Load Balancing & Failover
 const GEMINI_API_KEYS = [
-  "AIzaSyDjrcdp7WQOdwC926-L0wNGVmH53NDLXhw",
-  "AIzaSyCP1QlMoP0sr2e80d9EjR00WgMQibgE7Q8"
+  "AIzaSyDjrcdp7WQOdwC926-L0wNGVmH53NDLXhw", // API Key 1 (Original)
+  "AIzaSyCP1QlMoP0sr2e80d9EjR00WgMQibgE7Q8", // API Key 2 (Original) 
+  "AIzaSyDhAh-zVBfFEmcNTYhhsE2hF0iKnSpT64I", // API Key 3 (New)
+  "AIzaSyAUo2ojDVxuHyKp4P3fQ1_LakPT0uljuSw"  // API Key 4 (New)
 ];
 
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
 
-let currentApiKeyIndex = 0;
+// 🧠 Smart Load Balancer & Health Tracking
+interface ApiKeyStatus {
+  key: string;
+  failCount: number;
+  lastFailTime: number;
+  isHealthy: boolean;
+  responseTime: number;
+}
+
+class ApiKeyManager {
+  private keyStatuses: ApiKeyStatus[] = [];
+  private currentIndex = 0;
+  private readonly MAX_FAIL_COUNT = 3;
+  private readonly HEALTH_CHECK_COOLDOWN = 300000; // 5 minutes
+
+  constructor() {
+    this.keyStatuses = GEMINI_API_KEYS.map(key => ({
+      key,
+      failCount: 0,
+      lastFailTime: 0,
+      isHealthy: true,
+      responseTime: 0
+    }));
+  }
+
+  // 🎯 Get next healthy API key với intelligent selection
+  getNextApiKey(): { key: string; index: number } {
+    const now = Date.now();
+    
+    // First, try to find a healthy key starting from current index
+    for (let i = 0; i < this.keyStatuses.length; i++) {
+      const index = (this.currentIndex + i) % this.keyStatuses.length;
+      const status = this.keyStatuses[index];
+      
+      // Check if key is healthy or if cooldown has passed
+      if (status.isHealthy || (now - status.lastFailTime > this.HEALTH_CHECK_COOLDOWN)) {
+        this.currentIndex = (index + 1) % this.keyStatuses.length; // Move to next for round-robin
+        return { key: status.key, index };
+      }
+    }
+    
+    // If no healthy keys, reset all and use the first one (fallback)
+    console.warn("🔄 All API keys marked unhealthy, resetting health status...");
+    this.resetAllKeyStatus();
+    return { key: this.keyStatuses[0].key, index: 0 };
+  }
+
+  // 📊 Record successful API call
+  recordSuccess(keyIndex: number, responseTime: number): void {
+    if (keyIndex >= 0 && keyIndex < this.keyStatuses.length) {
+      const status = this.keyStatuses[keyIndex];
+      status.isHealthy = true;
+      status.failCount = 0;
+      status.responseTime = responseTime;
+      status.lastFailTime = 0;
+      console.log(`✅ API Key ${keyIndex + 1} healthy - Response: ${responseTime}ms`);
+    }
+  }
+
+  // ❌ Record failed API call
+  recordFailure(keyIndex: number, error: string): void {
+    if (keyIndex >= 0 && keyIndex < this.keyStatuses.length) {
+      const status = this.keyStatuses[keyIndex];
+      status.failCount++;
+      status.lastFailTime = Date.now();
+      
+      if (status.failCount >= this.MAX_FAIL_COUNT) {
+        status.isHealthy = false;
+        console.warn(`⚠️ API Key ${keyIndex + 1} marked unhealthy - Fail count: ${status.failCount}`);
+      }
+      
+      console.log(`❌ API Key ${keyIndex + 1} failed: ${error}`);
+    }
+  }
+
+  // 🔄 Reset all key health status
+  private resetAllKeyStatus(): void {
+    this.keyStatuses.forEach(status => {
+      status.isHealthy = true;
+      status.failCount = 0;
+      status.lastFailTime = 0;
+    });
+  }
+
+  // 📈 Get health report
+  getHealthReport(): { healthy: number; total: number; details: ApiKeyStatus[] } {
+    const healthy = this.keyStatuses.filter(s => s.isHealthy).length;
+    return {
+      healthy,
+      total: this.keyStatuses.length,
+      details: this.keyStatuses
+    };
+  }
+}
+
+const apiKeyManager = new ApiKeyManager();
 
 export interface GeminiResponse {
   message: string;
@@ -57,12 +155,21 @@ Tuyệt đối tuân thủ các quy tắc sau:
  */
 async function callGeminiAPI(systemInstruction: string, userQuery: string): Promise<GeminiResponse> {
   let lastError = "";
+  let attemptsCount = 0;
+  const maxAttempts = Math.min(GEMINI_API_KEYS.length * 2, 8); // Max 8 attempts across all keys
+
+  const healthReport = apiKeyManager.getHealthReport();
+  console.log(`🤖 Starting API call - ${healthReport.healthy}/${healthReport.total} keys healthy`);
   
-  // Thử với cả 2 API key
-  for (let attempt = 0; attempt < GEMINI_API_KEYS.length; attempt++) {
-    const apiKey = GEMINI_API_KEYS[currentApiKeyIndex];
+  // 🚀 Smart retry với healthy key selection
+  while (attemptsCount < maxAttempts) {
+    const { key: apiKey, index: keyIndex } = apiKeyManager.getNextApiKey();
+    const startTime = Date.now();
+    attemptsCount++;
     
     try {
+      console.log(`🔑 Attempt ${attemptsCount}/${maxAttempts}: API Key ${keyIndex + 1}/4`);
+      
       const response = await fetch(`${GEMINI_API_BASE_URL}?key=${apiKey}`, {
         method: 'POST',
         headers: {
@@ -97,6 +204,8 @@ async function callGeminiAPI(systemInstruction: string, userQuery: string): Prom
         }),
       });
 
+      const responseTime = Date.now() - startTime;
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -105,6 +214,11 @@ async function callGeminiAPI(systemInstruction: string, userQuery: string): Prom
       
       if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
         const message = data.candidates[0].content.parts[0].text.trim();
+        
+        // 📊 Record successful API call
+        apiKeyManager.recordSuccess(keyIndex, responseTime);
+        
+        console.log(`✅ API Success - Key ${keyIndex + 1}/4, Response: ${responseTime}ms`);
         return {
           message,
           success: true
@@ -114,19 +228,35 @@ async function callGeminiAPI(systemInstruction: string, userQuery: string): Prom
       }
       
     } catch (error) {
-      console.error(`Lỗi với API key ${currentApiKeyIndex + 1}:`, error);
       lastError = error instanceof Error ? error.message : "Lỗi không xác định";
       
-      // Chuyển sang API key tiếp theo
-      currentApiKeyIndex = (currentApiKeyIndex + 1) % GEMINI_API_KEYS.length;
+      // 📉 Record failure
+      apiKeyManager.recordFailure(keyIndex, lastError);
+      
+      console.warn(`❌ API Key ${keyIndex + 1}/4 failed (${attemptsCount}/${maxAttempts}): ${lastError}`);
+      
+      // 🚄 Fast-fail for rate limits - try next key immediately
+      if (lastError.includes('429') && attemptsCount < maxAttempts) {
+        console.log("🔄 Rate limit detected, switching to next healthy key...");
+        continue;
+      }
+      
+      // Short delay to prevent API spam (but not for rate limits)
+      if (attemptsCount < maxAttempts && !lastError.includes('429')) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
     }
   }
   
-  // Nếu cả 2 API key đều lỗi, trả về thông điệp fallback
+  // 📈 Final health report for debugging
+  const finalHealth = apiKeyManager.getHealthReport();
+  console.warn(`💥 All ${attemptsCount} API attempts failed - Health: ${finalHealth.healthy}/${finalHealth.total} keys`);
+  
+  // Return fallback with intelligent message
   return {
     message: getFallbackMessage(userQuery.includes("20 phút")),
     success: false,
-    error: `Tất cả API key đều lỗi. Lỗi cuối: ${lastError}`
+    error: `All ${attemptsCount} attempts failed across ${GEMINI_API_KEYS.length} API keys. Last error: ${lastError}`
   };
 }
 
@@ -149,4 +279,20 @@ function getFallbackMessage(isLongSession: boolean): string {
   
   const messages = isLongSession ? restMessages : normalMessages;
   return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// 🛠️ Export API health monitoring function for debugging & console testing
+export function getApiHealthReport() {
+  return apiKeyManager.getHealthReport();
+}
+
+// 🔄 Export function to reset API key health status (for testing)
+export function resetApiKeyHealth() {
+  // Create new manager instance to reset all health status
+  const newHealthReport = apiKeyManager.getHealthReport();
+  newHealthReport.details.forEach((_, index) => {
+    apiKeyManager.recordSuccess(index, 0);
+  });
+  console.log("🔄 All API key health status reset to healthy");
+  return apiKeyManager.getHealthReport();
 }

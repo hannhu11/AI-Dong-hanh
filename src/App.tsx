@@ -12,8 +12,7 @@ import ThoughtBubble from "./ui/components/ThoughtBubble";
 import "./ui/components/ThoughtBubble.css";
 import ContextSuggestionBubble from "./ui/components/ContextSuggestionBubble";
 import { AIMessage } from "./services/petAIService";
-import { startContextMonitoring } from "./services/contextService";
-import { scenariosManager } from "./services/scenariosService";
+import { initializeCoreServices } from "./services/mainService";
 
 const PhaserWrapper = React.lazy(() => import("./PhaserWrapper"));
 const SettingWindow = React.lazy(() => import("./SettingWindow"));
@@ -43,42 +42,43 @@ function App() {
     };
   }, []);
 
-  // Initialize Cognitive AI systems
+  // 🏗️ CENTRALIZED SERVICE INITIALIZATION - Foundation Stabilization
   useEffect(() => {
     let isMounted = true;
     
-    const initializeCognitiveAI = async () => {
+    const initializeFoundationServices = async () => {
       try {
-        console.log("🧠 Khởi tạo Trợ Lý Nhận Thức AI...");
+        console.log("🚀 [DEBUG] Starting Foundation Services initialization...");
+        console.log("🏗️ FOUNDATION STABILIZATION: Khởi tạo tất cả core services...");
         
-        // Start context monitoring
-        await startContextMonitoring();
+        // Sử dụng Centralized Service Manager với debug logging
+        console.log("📦 [DEBUG] Calling initializeCoreServices...");
+        await initializeCoreServices();
+        console.log("📦 [DEBUG] initializeCoreServices completed!");
         
-        // Initialize scenarios manager (already a singleton)
-        scenariosManager.getAllScenarios(); // This triggers initialization
+        console.log("✅ FOUNDATION STABILIZED: Tất cả services đã ổn định!");
         
-        console.log("✅ Trợ Lý Nhận Thức AI đã sẵn sàng!");
+      } catch (error) {
+        console.error("❌ CRITICAL ERROR trong Foundation Stabilization:", error);
+        console.error("❌ [DEBUG] Error stack:", error instanceof Error ? error.stack : String(error));
         
-        // Show welcome message
+        // Fallback notification
         if (isMounted) {
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent('ai-message', {
               detail: {
-                text: "🧠 Trợ Lý Nhận Thức AI đã khởi động! Tôi sẽ giúp bạn tối ưu workflow.",
+                text: "⚠️ Một số tính năng có thể chưa hoạt động. Đang tự động khôi phục...",
                 timestamp: Date.now(),
-                petId: 'cognitive-ai',
+                petId: 'system-recovery',
                 isContextMessage: true
               }
             }));
-          }, 3000); // Show after 3 seconds
+          }, 5000);
         }
-        
-      } catch (error) {
-        console.error("❌ Lỗi khởi tạo Cognitive AI:", error);
       }
     };
 
-    initializeCognitiveAI();
+    initializeFoundationServices();
 
     return () => {
       isMounted = false;
@@ -97,36 +97,35 @@ function App() {
   }
 
   return (
-    <>
+    <MantineProvider
+      defaultColorScheme={ColorSchemeType.Dark}
+      theme={{
+        fontFamily: 'cursive, Siemreap, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji',
+        colors: {
+          dark: [
+            "#C1C2C5",
+            "#A6A7AB",
+            "#909296",
+            "#5C5F66",
+            "#373A40",
+            "#2C2E33",
+            // shade
+            "#1A1B1E",
+            // background
+            "#141517",
+            "#1A1B1E",
+            "#101113",
+          ],
+        },
+        primaryColor: PrimaryColor,
+      }}
+    >
       <Router>
         <Routes>
           <Route path="/" element={<PhaserWrapper />} />
           <Route path="/setting" element={
             <Suspense fallback={<Loading />}>
-              <MantineProvider
-                defaultColorScheme={ColorSchemeType.Dark}
-                theme={{
-                  fontFamily: 'cursive, Siemreap, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji',
-                  colors: {
-                    dark: [
-                      "#C1C2C5",
-                      "#A6A7AB",
-                      "#909296",
-                      "#5C5F66",
-                      "#373A40",
-                      "#2C2E33",
-                      // shade
-                      "#1A1B1E",
-                      // background
-                      "#141517",
-                      "#1A1B1E",
-                      "#101113",
-                    ],
-                  },
-                  primaryColor: PrimaryColor,
-                }} >
-                <SettingWindow />
-              </MantineProvider>
+              <SettingWindow />
             </Suspense>
           } />
         </Routes>
@@ -145,7 +144,7 @@ function App() {
       
       {/* Context Suggestion Bubble - Trợ Lý Nhận Thức AI */}
       <ContextSuggestionBubble />
-    </>
+    </MantineProvider>
   );
 }
 
