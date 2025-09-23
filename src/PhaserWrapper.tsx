@@ -1,79 +1,74 @@
-import { useEffect, useRef, useState } from "react";
-import Phaser from "phaser";
-import Pets from "./scenes/Pets";
+import { useEffect, useRef } from "react";
 import { useSettingStore } from "./hooks/useSettingStore";
-import { appWindow } from "@tauri-apps/api/window";
+import { initializePhaserGame, updatePhaserPets, getPhaserStatus } from "./services/phaserManager";
 
+/**
+ * 🎮 PHASER WRAPPER - ZENITH PERFORMANCE EDITION
+ * 
+ * Refactored to use PhaserManager singleton - eliminates lag and delete bugs!
+ * 
+ * KEY CHANGES:
+ * ✅ No more multiple Phaser.Game instances
+ * ✅ No more game recreation on pet changes  
+ * ✅ No more dependency on screen size changes
+ * ✅ Singleton pattern ensures stable performance
+ */
 function PhaserWrapper() {
     const phaserDom = useRef<HTMLDivElement>(null);
     const { pets } = useSettingStore();
 
-    const [screenWidth, setScreenWidth] = useState(window.screen.width);
-    const [screenHeight, setScreenHeight] = useState(window.screen.height);
-
+    // 🚀 Initialize game ONCE when component mounts
     useEffect(() => {
-        if (!phaserDom.current) return;
+        const initializeGame = async () => {
+            if (!phaserDom.current) {
+                console.error("🚨 PhaserWrapper: Container ref not ready!");
+                return;
+            }
 
-        const handleResize = () => {
-            setScreenWidth(window.screen.width);
-            setScreenHeight(window.screen.height);
+            try {
+                // Set container ID for singleton manager
+                phaserDom.current.id = "phaser-container";
+                
+                console.log("🎮 PhaserWrapper: Initializing with singleton manager...");
+                await initializePhaserGame("phaser-container", pets);
+                
+                const status = getPhaserStatus();
+                console.log("✅ PhaserWrapper: Singleton game ready!", status);
+                
+            } catch (error) {
+                console.error("🚨 PhaserWrapper: Initialization failed:", error);
+            }
         };
 
-        window.addEventListener("resize", handleResize);
+        initializeGame();
 
-        // ensure that if component remount user will still be able to touch their screen
-        appWindow.setIgnoreCursorEvents(true);
-
-        const phaserConfig: Phaser.Types.Core.GameConfig = {
-            type: Phaser.AUTO,
-            parent: phaserDom.current,
-            backgroundColor: '#ffffff0',
-            transparent: true,
-            roundPixels: true,
-            antialias: true,
-            scale: {
-                mode: Phaser.Scale.ScaleModes.RESIZE,
-                width: screenWidth,
-                height: screenHeight,
-            },
-            physics: {
-                default: 'arcade',
-                arcade: {
-                    debug: false,
-                    gravity: { y: 200, x: 0},
-                },
-            },
-            fps: {
-                target: 30,
-                min: 30,
-                smoothStep: true,
-            },
-            scene: [Pets],
-            audio: {
-                noAudio: true,
-            },
-            callbacks: {
-                preBoot: (game) => {
-                    game.registry.set('spriteConfig', pets);
-                    // game.registry.set('defaultPets', defaultPets);
-                }
-            }
-        }
-
-        const game = new Phaser.Game(phaserConfig);
-
+        // 🧹 Cleanup on unmount (rarely happens in this app)
         return () => {
-            game.destroy(true);
-            // reset the dom
-            if (phaserDom.current !== null) phaserDom.current.innerHTML = '';
-            window.removeEventListener("resize", handleResize);
-        }
+            console.log("🧹 PhaserWrapper: Component unmounting (cleanup handled by singleton)");
+        };
+    }, []); // 🔑 EMPTY DEPENDENCY - Initialize ONCE only!
 
-    }, [pets, screenWidth, screenHeight]);
+    // 🔄 Update pets when pets configuration changes (NO game recreation!)
+    useEffect(() => {
+        console.log(`🐾 PhaserWrapper: Pets configuration changed (${pets.length} pets)`);
+        updatePhaserPets(pets);
+    }, [pets]); // 🔑 Only pets dependency - just update registry!
 
     return (
         <>
-            <div ref={phaserDom} />
+            <div 
+                ref={phaserDom} 
+                id="phaser-container"
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    pointerEvents: 'none', // Ensure desktop interaction
+                    zIndex: -1 // Behind other UI elements
+                }}
+            />
         </>
     )
 }

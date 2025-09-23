@@ -290,6 +290,7 @@ export default class Pets extends Phaser.Scene {
                         );
                         break;
                     case DispatchType.RemovePet:
+                        console.log(`📨 [EVENT] RemovePet event received:`, event.payload.value);
                         this.removePet(event.payload.value as string);
                         break;
                     case DispatchType.OverridePetScale:
@@ -461,11 +462,20 @@ export default class Pets extends Phaser.Scene {
     }
 
     removePet(petId: string): void {
+        console.log(`🗑️ [PETS SCENE] Attempting to remove pet: ${petId}`);
+        console.log(`🗑️ [PETS SCENE] Current pets count: ${this.pets.length}`);
+        
+        // Debug: List all current pet IDs
+        const currentPetIds = this.pets.map(pet => pet.id);
+        console.log(`🗑️ [PETS SCENE] Current pet IDs:`, currentPetIds);
+        
         // Stop AI timer for this pet
         petAIManager.stopAITimer(petId);
         
+        const initialCount = this.pets.length;
         this.pets = this.pets.filter((pet: Pet, index: number) => {
             if (pet.id === petId) {
+                console.log(`✅ [PETS SCENE] Found pet to remove: ${petId} at index ${index}`);
                 pet.destroy();
 
                 // get pet that use the same texture as the pet that is destroyed
@@ -477,6 +487,7 @@ export default class Pets extends Phaser.Scene {
                 // remove texture if there is only one pet that use the texture because we don't need it anymore
                 if (petsWithSameTexture.length === 1) {
                     this.textures.remove(pet.texture.key);
+                    console.log(`🧹 [PETS SCENE] Removed texture: ${pet.texture.key}`);
                 }
 
                 // remove index from petClimbAndCrawlIndex if it exist because the pet is destroyed
@@ -488,6 +499,13 @@ export default class Pets extends Phaser.Scene {
             }
             return true;
         });
+        
+        const finalCount = this.pets.length;
+        if (finalCount < initialCount) {
+            console.log(`✅ [PETS SCENE] Pet ${petId} successfully removed. Count: ${initialCount} → ${finalCount}`);
+        } else {
+            console.error(`❌ [PETS SCENE] Pet ${petId} NOT found! Available IDs: ${currentPetIds.join(', ')}`);
+        }
     }
 
     updateDirection(pet: Pet, direction: Direction): void {

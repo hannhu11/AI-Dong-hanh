@@ -1,9 +1,10 @@
-// 🚀 ENHANCED API SYSTEM: 4 API Keys với Load Balancing & Failover
+// 🚀 ENHANCED API SYSTEM: 5 API Keys với Load Balancing & Failover
 const GEMINI_API_KEYS = [
   "AIzaSyDjrcdp7WQOdwC926-L0wNGVmH53NDLXhw", // API Key 1 (Original)
   "AIzaSyCP1QlMoP0sr2e80d9EjR00WgMQibgE7Q8", // API Key 2 (Original) 
-  "AIzaSyDhAh-zVBfFEmcNTYhhsE2hF0iKnSpT64I", // API Key 3 (New)
-  "AIzaSyAUo2ojDVxuHyKp4P3fQ1_LakPT0uljuSw"  // API Key 4 (New)
+  "AIzaSyDhAh-zVBfFEmcNTYhhsE2hF0iKnSpT64I", // API Key 3 (Added)
+  "AIzaSyAUo2ojDVxuHyKp4P3fQ1_LakPT0uljuSw", // API Key 4 (Added)
+  "AIzaSyCDiQ1S9Bv57RvSLJZ1IMT1mDOTbtGv3no"  // API Key 5 (Latest)
 ];
 
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
@@ -109,6 +110,11 @@ export interface GeminiResponse {
   message: string;
   success: boolean;
   error?: string;
+  // 🎨 NEW: JSON Thought Bubble Format
+  thoughtBubble?: {
+    icon: string;
+    message: string;
+  };
 }
 
 /**
@@ -123,7 +129,7 @@ export async function generateThoughtMessage(context: {
   isLongSession?: boolean; // Đã làm việc > 20 phút
   customPrompt?: string; // Custom prompt cho context analysis
 }): Promise<GeminiResponse> {
-  // Sử dụng custom prompt nếu có, otherwise dùng system instruction mặc định
+  // 🎨 ZENITH JSON FORMAT: Enhanced system instruction for structured output
   const systemInstruction = context.customPrompt || `Bạn là một người bạn đồng hành AI tên là "Airi", một chuyên gia tâm lý tinh tế và thấu cảm. Bạn đang trò chuyện với một người bạn tên là Quin. Quin là một cô gái rất nhẹ nhàng, dịu dàng, hiền lành nhưng đôi khi hay cảm thấy buồn và cô đơn.
 
 Nhiệm vụ của bạn là: Dựa vào những thông tin bối cảnh được cung cấp, hãy tạo ra một thông điệp CỰC KỲ NGẮN GỌN (dưới 25 từ) để hiển thị trong một bong bóng suy nghĩ. Thông điệp phải mang lại cảm giác ấm áp, được quan tâm và một chút niềm vui bất ngờ.
@@ -137,7 +143,14 @@ Tuyệt đối tuân thủ các quy tắc sau:
   * Một thông tin hữu ích và vui vẻ (mẹo vặt, sự thật thú vị)
   * Một câu nói truyền cảm hứng
 - Ngôn ngữ: Chỉ sử dụng Tiếng Việt.
-- Định dạng: Chỉ trả về một chuỗi văn bản thuần túy.`;
+
+🎨 ĐỊNH DẠNG QUAN TRỌNG: Bạn PHẢI trả về JSON format chính xác như sau:
+{
+  "icon": "😊", 
+  "message": "Thông điệp của bạn ở đây"
+}
+
+Chọn emoji icon phù hợp với nội dung (😊💡🌟☕🎯💭🌸⚡🎨🌈). Chỉ trả về JSON, không có text nào khác.`;
 
   let userQuery = "";
   
@@ -156,7 +169,7 @@ Tuyệt đối tuân thủ các quy tắc sau:
 async function callGeminiAPI(systemInstruction: string, userQuery: string): Promise<GeminiResponse> {
   let lastError = "";
   let attemptsCount = 0;
-  const maxAttempts = Math.min(GEMINI_API_KEYS.length * 2, 8); // Max 8 attempts across all keys
+  const maxAttempts = Math.min(GEMINI_API_KEYS.length * 2, 10); // Max 10 attempts across all 5 keys
 
   const healthReport = apiKeyManager.getHealthReport();
   console.log(`🤖 Starting API call - ${healthReport.healthy}/${healthReport.total} keys healthy`);
@@ -168,7 +181,7 @@ async function callGeminiAPI(systemInstruction: string, userQuery: string): Prom
     attemptsCount++;
     
     try {
-      console.log(`🔑 Attempt ${attemptsCount}/${maxAttempts}: API Key ${keyIndex + 1}/4`);
+      console.log(`🔑 Attempt ${attemptsCount}/${maxAttempts}: API Key ${keyIndex + 1}/5`);
       
       const response = await fetch(`${GEMINI_API_BASE_URL}?key=${apiKey}`, {
         method: 'POST',
@@ -213,15 +226,41 @@ async function callGeminiAPI(systemInstruction: string, userQuery: string): Prom
       const data = await response.json();
       
       if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        const message = data.candidates[0].content.parts[0].text.trim();
+        const rawMessage = data.candidates[0].content.parts[0].text.trim();
         
         // 📊 Record successful API call
         apiKeyManager.recordSuccess(keyIndex, responseTime);
         
-        console.log(`✅ API Success - Key ${keyIndex + 1}/4, Response: ${responseTime}ms`);
+        console.log(`✅ API Success - Key ${keyIndex + 1}/5, Response: ${responseTime}ms`);
+        
+        // 🎨 ZENITH JSON PARSING: Try to parse JSON format first
+        try {
+          const jsonMatch = rawMessage.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsedJson = JSON.parse(jsonMatch[0]);
+            if (parsedJson.icon && parsedJson.message) {
+              return {
+                message: parsedJson.message, // Backward compatibility
+                success: true,
+                thoughtBubble: {
+                  icon: parsedJson.icon,
+                  message: parsedJson.message
+                }
+              };
+            }
+          }
+        } catch (jsonError) {
+          console.warn("🎨 JSON parsing failed, falling back to plain text:", jsonError);
+        }
+        
+        // 📄 Fallback to plain text format (backward compatibility)
         return {
-          message,
-          success: true
+          message: rawMessage,
+          success: true,
+          thoughtBubble: {
+            icon: '💭', // Default icon
+            message: rawMessage
+          }
         };
       } else {
         throw new Error("Không nhận được phản hồi hợp lệ từ Gemini");
@@ -233,7 +272,7 @@ async function callGeminiAPI(systemInstruction: string, userQuery: string): Prom
       // 📉 Record failure
       apiKeyManager.recordFailure(keyIndex, lastError);
       
-      console.warn(`❌ API Key ${keyIndex + 1}/4 failed (${attemptsCount}/${maxAttempts}): ${lastError}`);
+      console.warn(`❌ API Key ${keyIndex + 1}/5 failed (${attemptsCount}/${maxAttempts}): ${lastError}`);
       
       // 🚄 Fast-fail for rate limits - try next key immediately
       if (lastError.includes('429') && attemptsCount < maxAttempts) {
@@ -252,33 +291,43 @@ async function callGeminiAPI(systemInstruction: string, userQuery: string): Prom
   const finalHealth = apiKeyManager.getHealthReport();
   console.warn(`💥 All ${attemptsCount} API attempts failed - Health: ${finalHealth.healthy}/${finalHealth.total} keys`);
   
-  // Return fallback with intelligent message
+  // Return fallback with intelligent message in JSON format
+  const fallbackData = getFallbackMessage(userQuery.includes("20 phút"));
   return {
-    message: getFallbackMessage(userQuery.includes("20 phút")),
+    message: fallbackData.message,
     success: false,
-    error: `All ${attemptsCount} attempts failed across ${GEMINI_API_KEYS.length} API keys. Last error: ${lastError}`
+    error: `All ${attemptsCount} attempts failed across ${GEMINI_API_KEYS.length} API keys. Last error: ${lastError}`,
+    thoughtBubble: fallbackData.thoughtBubble
   };
 }
 
 /**
- * Thông điệp dự phòng khi API lỗi
+ * 🎨 ZENITH FALLBACK: JSON format fallback messages
  */
-function getFallbackMessage(isLongSession: boolean): string {
+function getFallbackMessage(isLongSession: boolean): { message: string; thoughtBubble: { icon: string; message: string } } {
   const restMessages = [
-    "Hôm nay vất vả rồi, nghỉ ngơi một chút nhé! 💕",
-    "Đã làm việc lâu rồi, hãy ngắm ra ngoài cửa sổ một chút~ 🌸",
-    "Mắt mỏi rồi đấy, thử nhắm mắt 20 giây xem sao? ✨"
+    { icon: "💕", message: "Hôm nay vất vả rồi, nghỉ ngơi một chút nhé!" },
+    { icon: "🌸", message: "Đã làm việc lâu rồi, hãy ngắm ra ngoài cửa sổ một chút~" },
+    { icon: "✨", message: "Mắt mỏi rồi đấy, thử nhắm mắt 20 giây xem sao?" },
+    { icon: "☕", message: "Đã đến lúc uống nước và giãn cơ rồi đấy!" }
   ];
   
   const normalMessages = [
-    "Hôm nay có điều gì làm bạn vui không? 🌺",
-    "Mọi chuyện rồi sẽ ổn thôi, mình tin ở bạn! 💖",
-    "Nụ cười nhỏ xinh cũng có thể thay đổi cả ngày đấy~ 😊",
-    "Bạn đã cố gắng rất nhiều rồi, tuyệt vời lắm! 🌟"
+    { icon: "🌺", message: "Hôm nay có điều gì làm bạn vui không?" },
+    { icon: "💖", message: "Mọi chuyện rồi sẽ ổn thôi, mình tin ở bạn!" },
+    { icon: "😊", message: "Nụ cười nhỏ xinh cũng có thể thay đổi cả ngày đấy~" },
+    { icon: "🌟", message: "Bạn đã cố gắng rất nhiều rồi, tuyệt vời lắm!" },
+    { icon: "🌈", message: "Mỗi ngày đều mang đến cơ hội mới!" },
+    { icon: "🎯", message: "Tin vào bản thân, bạn có thể làm được!" }
   ];
   
   const messages = isLongSession ? restMessages : normalMessages;
-  return messages[Math.floor(Math.random() * messages.length)];
+  const selectedMessage = messages[Math.floor(Math.random() * messages.length)];
+  
+  return {
+    message: selectedMessage.message, // Backward compatibility
+    thoughtBubble: selectedMessage
+  };
 }
 
 // 🛠️ Export API health monitoring function for debugging & console testing

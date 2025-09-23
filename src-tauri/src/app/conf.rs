@@ -42,6 +42,18 @@ impl AppConfig {
     pub fn get_theme(&self) -> &str {
         self.theme.as_str()
     }
+
+    pub fn get_language(&self) -> &str {
+        self.language.as_str()
+    }
+
+    pub fn get_allow_pet_above_taskbar(&self) -> bool {
+        self.allow_pet_above_taskbar
+    }
+
+    pub fn get_allow_pet_interaction(&self) -> bool {
+        self.allow_pet_interaction
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]

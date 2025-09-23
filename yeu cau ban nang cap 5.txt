@@ -1,0 +1,75 @@
+﻿Chẩn Đoán & Lộ Trình Phát Triển "Trợ Lý Nhận Thức AI"
+Bối Cảnh (Context)
+Dự án đã bước vào giai đoạn then chốt của sự trưởng thành. Các lỗi đồ họa ban đầu đã được giải quyết, nhưng các vấn đề sâu hơn về kiến trúc đã lộ rõ:
+1. Bão hòa API (API Saturation): Hệ thống đang tạo ra quá nhiều lệnh gọi API, dẫn đến lỗi 429 Too Many Requests và làm cạn kiệt tài nguyên.
+2. Hiệu năng không ổn định (Performance Bottleneck): Hiện tượng lag và lỗi chức năng xóa nhân vật dai dẳng cho thấy xung đột trong việc quản lý trạng thái và các tiến trình đồ họa.
+3. Codebase cồng kềnh (Codebase Bloat): Dự án đang chứa nhiều file không cần thiết (video, tài liệu cũ), làm tăng sự phức tạp và kích thước build.
+Cơ hội trước mắt là thực hiện một cuộc tái cấu trúc toàn diện để dọn dẹp, tối ưu hóa và tinh chỉnh lại "bộ não" của AI, biến nó thành một trợ lý hiệu quả, tinh tế và bền vững.
+Vai Trò (Role)
+Bạn là một AI Kiến trúc sư Hệ thống và Chuyên gia Tối ưu hóa Hiệu năng (Chief Architect & Performance Engineer). Nhiệm vụ của bạn không chỉ là viết code hay sửa lỗi bề mặt. Bạn cần phải:
+1. Chẩn đoán chính xác nguyên nhân gốc rễ của các vấn đề về hiệu năng, bất đồng bộ và vòng đời trong hệ thống.
+2. Thiết kế và thực thi một giải pháp kiến trúc mạnh mẽ để loại bỏ lỗi vĩnh viễn, tuyệt đối bảo toàn logic vật lý và tương tác gốc của nhân vật.
+3. Tối ưu hóa và dọn dẹp toàn bộ dự án, loại bỏ các file không cần thiết.
+4. Kiến tạo các tính năng mới trên một nền tảng đã được tôi luyện, ổn định và tinh gọn.
+Sứ Mệnh (Mission)
+"Tối ưu hóa và Ổn định hóa Kiến trúc Lõi của ứng dụng, loại bỏ các file thừa, giải quyết triệt để các lỗi về hiệu năng và vòng đời. Sau đó, tiếp tục sứ mệnh biến đổi màn hình desktop của người dùng thành một hệ sinh thái động, thông minh và thích ứng."
+Trụ Cột Phát Triển (Pillars of Development)
+Kế hoạch sẽ được chia thành ba phần: Dọn Dẹp Dự Án, Khắc Phục Nền Tảng, và Tái Kiến Trúc AI.
+A. Trụ Cột Ưu Tiên 1: Dọn Dẹp và Tối Giản Hóa Dự Án (Project Refinement)
+* Tầm nhìn: Một codebase sạch sẽ là một codebase nhanh và dễ bảo trì.
+* Hành động: Xóa bỏ tất cả các file không cần thiết khỏi thư mục dự án để giảm kích thước và sự phức tạp.
+* Danh sách file cần xóa:
+   * Tất cả các file video (.mkv).
+   * Tất cả các file Markdown không phải là tài liệu hướng dẫn cốt lõi (README.md, contribute.md, LEARN.md, TEST_*.md, BAO_CAO_*.md, HUONG_DAN_*.md).
+   * Các file demo không còn sử dụng (quick_demo.html).
+   * Bất kỳ file tạm hoặc file log nào khác không thuộc mã nguồn chính.
+B. Trụ Cột Ưu Tiên 2: Khắc Phục Nền Tảng (Foundation Stabilization)
+Đây là giai đoạn tối quan trọng để giải quyết lỗi lag và xóa.
+* Chẩn Đoán Chuyên Sâu (Deep Diagnosis):
+   * Vấn đề 1 (Lag & Lỗi xóa): Nguyên nhân gốc rễ là Vi phạm Nguyên tắc Singleton (Singleton Violation). Component PhaserCanvas.tsx đang tạo ra một thực thể game Phaser mới mỗi khi nó bị re-render. Điều này dẫn đến việc có nhiều game engine chạy chồng chéo, gây ra lag nghiêm trọng và làm cho việc quản lý (và xóa) các nhân vật trở nên hỗn loạn.
+   * Vấn đề 2 (Dịch vụ không ổn định): Chẩn đoán cũ vẫn chính xác. Đây là Lỗi Vòng đời (Lifecycle Bug) do khởi tạo dịch vụ sai chỗ.
+* Giải Pháp Kiến Trúc An Toàn (The Safe Architectural Solution):
+   1. Thực thi Singleton cho Game Engine: Đảm bảo chỉ có một và chỉ một thực thể game Phaser tồn tại trong suốt vòng đời ứng dụng.
+   2. Tập Trung Hóa Khởi Tạo Dịch Vụ: Khởi tạo tất cả các dịch vụ nền tại gốc của ứng dụng.
+C. Trụ Cột Tầm Nhìn: Tái Kiến Trúc AI Thông Minh & Tinh Tế (Intelligent & Refined AI Architecture)
+Đây là bước đột phá để giải quyết vấn đề 429 và nâng cao trải nghiệm.
+* Tầm nhìn: Chuyển từ "phản ứng với mọi thứ" sang "hành động khi cần thiết", mang lại những tương tác nhẹ nhàng và ý nghĩa cho Quin.
+* Giải pháp kiến trúc:
+   1. Loại bỏ hoàn toàn Phân tích Nội dung Clipboard: Chức năng này sẽ bị vô hiệu hóa. Chúng ta sẽ không gửi nội dung clipboard đến Gemini nữa. Đây là nguồn gây ra nhiều API call nhất.
+   2. Giới thiệu "Bộ Điều Phối Tương Tác" (Interaction Coordinator): Thay vì để các timer gọi API trực tiếp, chúng ta sẽ tạo một "bộ não" trung tâm trong petAIService.ts.
+      * Cơ chế: Các service khác (như contextService) chỉ gửi tín hiệu đến Bộ Điều Phối (ví dụ: "Người dùng vừa chuyển sang cửa sổ YouTube", "Người dùng đã không hoạt động 10 phút").
+      * Logic thông minh: Bộ Điều Phối sẽ nhận các tín hiệu này và sử dụng một bộ đếm thời gian cooldown nội bộ (ví dụ: 3-5 phút). Nó sẽ chỉ cho phép một API call được thực hiện sau mỗi khoảng thời gian này, bất kể có bao nhiêu tín hiệu được gửi đến. Điều này đảm bảo AI chỉ đưa ra gợi ý một cách thưa thớt, đúng lúc và không bao giờ gây bão API.
+   3. Làm giàu Prompt với Dữ liệu "Nhẹ": Các API call còn lại sẽ chỉ gửi đi những thông tin gọn nhẹ và hữu ích như activeWindowTitle, thời gian trong ngày, để tạo ra những mẩu tin tức, câu chuyện cười, hoặc kiến thức thú vị.
+   4. Tái thiết kế "Bong bóng suy nghĩ": Giờ đây, AI sẽ trả về một cấu trúc JSON đơn giản bao gồm một icon dạng text (emoji) và một thông điệp, giúp giao diện vừa sinh động vừa nhẹ nhàng.
+Yêu Cầu (Requirements)
+Bạn cần thực thi một kế hoạch hành động chi tiết, tuần tự và cẩn trọng.
+Giai Đoạn 0: Dọn Dẹp (Thực hiện đầu tiên)
+* Thực hiện xóa các file đã liệt kê trong Trụ Cột A để làm sạch dự án trước khi bắt đầu sửa lỗi.
+Giai Đoạn 1: Tái Cấu Trúc Kiến Trúc (Bắt buộc)
+1. Tái cấu trúc Quản lý Game Engine:
+* Tạo một Service Quản lý Game (src/services/phaserManager.ts):
+   * Tạo một file mới quản lý thực thể game Phaser duy nhất.
+   * Export một đối tượng phaserManager với hai phương thức: initialize(containerId: string) và getGame().
+   * Hàm initialize sẽ kiểm tra và chỉ tạo new Phaser.Game(...) nếu nó chưa tồn tại.
+* Sửa đổi PhaserCanvas.tsx:
+   * Xóa bỏ logic tạo game. Sử dụng useEffect để gọi phaserManager.initialize('phaser-container') một lần duy nhất.
+   * Component này giờ chỉ có nhiệm vụ render một <div id="phaser-container"></div>.
+2. Tái cấu trúc Khởi tạo Dịch vụ:
+* Tạo src/services/mainService.ts: Export hàm initializeCoreServices() để khởi tạo tất cả các dịch vụ nền khác.
+* Tập trung hóa việc gọi Service (src/App.tsx): Sử dụng useEffect với mảng rỗng [] để gọi initializeCoreServices() một lần duy nhất.
+3. Tái cấu trúc Lõi AI:
+* Vô hiệu hóa Clipboard: Mở contextService.ts, tìm đến hàm initializeClipboardListener và comment out hoặc xóa toàn bộ nội dung của nó.
+* Xây dựng Bộ Điều Phối: Trong petAIService.ts, tạo một InteractionCoordinator với logic cooldown.
+* Cập nhật contextService.ts: Thay vì gọi Gemini, hàm checkActiveWindow giờ sẽ chỉ gọi một phương thức của InteractionCoordinator, ví dụ coordinator.signalWindowChange(newWindowTitle).
+* Nâng cấp geminiService.ts & ThoughtBubble.tsx:
+   * Chỉnh sửa geminiService để yêu cầu Gemini trả về JSON theo định dạng: { "icon": "💡", "message": "Một sự thật thú vị..." }.
+   * Cập nhật ThoughtBubble.tsx để render emoji và message từ cấu trúc JSON mới.
+4. Nguyên Tắc Bất Di Bất Dịch: Bảo Toàn Logic Gốc
+* KHÔNG THAY ĐỔI bất kỳ logic nào bên trong class Pet (src/scenes/Pet.ts) hoặc Pets (src/scenes/Pets.ts). Toàn bộ mã nguồn liên quan đến vật lý, trạng thái, và hành vi của nhân vật phải được giữ nguyên vẹn.
+5. Xác minh và Kiểm tra (Cực kỳ quan trọng):
+* Kịch bản 1 (Lỗi lag & xóa): Thêm nhiều nhân vật. Hệ thống phải mượt mà. Xóa từng nhân vật cụ thể phải hoạt động ngay lập tức.
+* Kịch bản 2 (Lỗi vòng đời & API): Mở ứng dụng, lướt web, làm việc. "Bong bóng suy nghĩ" phải xuất hiện một cách thưa thớt (vài phút một lần), ngay cả khi cửa sổ cài đặt được mở/đóng. Mở console và đảm bảo không còn lỗi 429.
+* Kịch bản 3 (Lỗi hồi quy): Kiểm tra lại hành vi vật lý (leo tường, rơi) -> Phải hoạt động bình thường.
+Giai Đoạn 2: Hoàn Thiện và Mở Rộng (Sau khi Giai đoạn 1 thành công)
+* Bắt đầu triển khai các Trụ cột Tầm nhìn, ưu tiên Hoàn thiện Tính năng Quản lý Kịch bản. K
+Hãy bắt đầu bằng Giai Đoạn 0. Một nền tảng sạch sẽ, ổn định và hiệu quả là điều kiện tiên quyết cho

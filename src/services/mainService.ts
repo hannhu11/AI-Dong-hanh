@@ -18,6 +18,8 @@ import { scenariosManager } from './scenariosService';
 import { workflowOptimizer } from './workflowOptimizationService';
 import { focusManager } from './focusManagementService';
 import { knowledgeManager } from './knowledgeSynthesisService';
+import { interactionCoordinator, getCoordinatorStats } from './interactionCoordinator';
+import { phaserManager, getPhaserStatus } from './phaserManager';
 
 // Service initialization state tracking
 interface ServiceStatus {
@@ -28,6 +30,9 @@ interface ServiceStatus {
   workflowOptimizationService: boolean;
   focusManagementService: boolean;
   knowledgeSynthesisService: boolean;
+  // 🎯 ZENITH ARCHITECTURE: New services
+  interactionCoordinator: boolean;
+  phaserManager: boolean;
 }
 
 class MainServiceManager {
@@ -40,7 +45,10 @@ class MainServiceManager {
     scenariosService: false,
     workflowOptimizationService: false,
     focusManagementService: false,
-    knowledgeSynthesisService: false
+    knowledgeSynthesisService: false,
+    // 🎯 ZENITH ARCHITECTURE: New services
+    interactionCoordinator: false,
+    phaserManager: false
   };
 
   private constructor() {
@@ -136,7 +144,32 @@ class MainServiceManager {
         avgImportance: knowledgeStats.averageImportance.toFixed(2)
       });
 
-      // 7. Pet AI Service sẽ được khởi tạo bởi Phaser scenes khi pets được tạo
+      // 7. Initialize Interaction Coordinator (ZENITH API Optimization)
+      console.log("🧠 Khởi tạo Interaction Coordinator...");
+      // Coordinator is already a singleton and initialized on import
+      const coordinatorStats = getCoordinatorStats();
+      this.serviceStatus.interactionCoordinator = true;
+      console.log("✅ Interaction Coordinator đã sẵn sàng:", {
+        cooldown: coordinatorStats.cooldownTimeRemaining + 's',
+        signals: coordinatorStats.totalSignalsReceived,
+        apiCalls: coordinatorStats.totalAPICallsMade,
+        efficiency: (coordinatorStats.apiEfficiencyRatio * 100).toFixed(1) + '%',
+        emergencyMode: coordinatorStats.emergencyMode
+      });
+
+      // 8. Initialize Phaser Manager (Singleton Game Engine)
+      console.log("🎮 Khởi tạo Phaser Manager...");
+      // PhaserManager is initialized when PhaserWrapper component mounts
+      const phaserStatus = getPhaserStatus();
+      this.serviceStatus.phaserManager = true;
+      console.log("✅ Phaser Manager đã sẵn sàng:", {
+        initialized: phaserStatus.isInitialized,
+        gameExists: phaserStatus.gameExists,
+        petsCount: phaserStatus.petsCount,
+        screenSize: phaserStatus.screenSize
+      });
+
+      // 9. Pet AI Service sẽ được khởi tạo bởi Phaser scenes khi pets được tạo
       console.log("🤖 Pet AI Service: Sẵn sàng cho pet initialization");
       this.serviceStatus.petAIService = true;
 
